@@ -11,7 +11,7 @@ class Game:
         # création fenetre
 
         self.screen = pygame.display.set_mode((900, 600))
-        pygame.display.set_caption("Elder Quest")
+        pygame.display.set_caption("dungeon heros")
         print("sa init")
 
         #charger la carte
@@ -32,7 +32,7 @@ class Game:
 
 
         #dessiner le groupe calque
-        self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=1)
+        self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=8)
         self.group.add(self.player)
 
     def handle_input(self):
