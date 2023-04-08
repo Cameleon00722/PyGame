@@ -11,16 +11,18 @@ class Player(pygame.sprite.Sprite):
         self.position = [x, y]
         self.feet = pygame.Rect(0,0, self.rect.width*0.5, 10)
         self.old_position = self.position.copy()
+        self.inventaire = []
+        self.speed = 2
 
     def save_loc(self): self.old_position = self.position.copy()
 
-    def move_right(self): self.position[0] += 2
+    def move_right(self): self.position[0] += self.speed
 
-    def move_left(self): self.position[0] -= 2
+    def move_left(self): self.position[0] -= self.speed
 
-    def move_up(self): self.position[1] -= 2
+    def move_up(self): self.position[1] -= self.speed
 
-    def move_down(self): self.position[1] += 2
+    def move_down(self): self.position[1] += self.speed
 
     def update(self):
         self.rect.topleft = self.position
@@ -35,3 +37,10 @@ class Player(pygame.sprite.Sprite):
         image = pygame.Surface([16, 16])
         image.blit(self.sprite_sheet, (0, 0), (x, y, 16, 16))
         return image
+
+    def ajouter_objet(self, objet):
+        self.inventaire.append(objet)
+
+    def enlever_objet(self, objet):
+        if objet in self.inventaire:
+            self.inventaire.remove(objet)
