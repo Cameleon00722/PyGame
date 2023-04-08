@@ -2,6 +2,7 @@ import pygame
 import pytmx
 import pyscroll
 
+from monstre import Monstre
 from player import Player
 
 class MenuInventaire:
@@ -46,6 +47,13 @@ class Game:
         player_position = tmx_data.get_object_by_name("player")
         self.player = Player(player_position.x, player_position.y)
 
+        #generer monstre
+        for monstre_position in tmx_data.objects:
+            if monstre_position.name == "mob1":
+                self.monstre = Monstre(monstre_position.x, monstre_position.y)
+
+
+
         #stocker collision
         self.walls = []
         for obj in tmx_data.objects:
@@ -60,6 +68,7 @@ class Game:
         #dessiner le groupe calque
         self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=8)
         self.group.add(self.player)
+        self.group.add(self.monstre)
 
         # créer l'inventaire
         self.menu_inventaire = MenuInventaire(self.player)
@@ -143,11 +152,11 @@ class Game:
         self.walls = []
 
         for obj in tmx_data.objects:
-            if obj.type == "collision":
+            if obj.name == "collision":
                 self.walls.append(pygame.Rect(obj.x, obj.y, obj.width, obj.height))
 
         # Dessiner les différents calques
-        self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=5)
+        self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=8)
         self.group.add(self.player)
 
         # Porte de la maison
@@ -167,6 +176,10 @@ class Game:
 
         if self.map == "house" and self.player.feet.colliderect(self.enter_house_rect):
             self.switch_world()
+
+        if self.player.rect.colliderect(self.monstre.rect):
+            # collision détectée entre le joueur et le monstre
+            print("toucherrr")
 
         #verif collision
         for sprite in self.group.sprites():
@@ -191,10 +204,12 @@ class Game:
         while running:
 
             self.player.save_loc()
+            self.monstre.save_loc()
             self.handle_input()
             self.update()
             self.group.center(self.player.rect)
             self.group.draw(self.screen)
+            self.monstre.move()
             pygame.display.flip()
 
             for event in pygame.event.get():
