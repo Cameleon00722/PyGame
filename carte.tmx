@@ -629,7 +629,7 @@
   <object id="101" name="mob1" x="1479.33" y="888.333">
    <point/>
   </object>
-  <object id="102" name="mob2" x="1526.33" y="902.667">
+  <object id="102" name="mob1" x="1526.33" y="902.667">
    <point/>
   </object>
  </objectgroup>
