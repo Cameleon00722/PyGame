@@ -11,27 +11,28 @@ class Monstre(pygame.sprite.Sprite):
         self.image.set_colorkey([0,0,0])
         self.rect = self.image.get_rect()
         self.position = [x, y]
-        self.speed = 1
+        self.speed = 0.5
         self.feet = pygame.Rect(0, 0, self.rect.width * 0.5, 10)
         self.old_position = self.position.copy()
 
     def save_loc(self):
         self.old_position = self.position.copy()
 
-    def move(self):
-        random_value = random.randint(1, 100)
+    def move_right(self):
+        self.position[0] += self.speed
+        print("droite")
 
+    def move_left(self):
+        self.position[0] -= self.speed
+        print("gauche")
 
-        if random_value <= 25:
-            self.position[0] += self.speed
-        elif 51 > random_value > 25:
-            self.position[0] -= self.speed
+    def move_up(self):
+        self.position[1] -= self.speed
+        print("haut")
 
-        elif 76 > random_value >= 51:
-            self.position[1] += self.speed
-
-        elif 101 > random_value > 75:
-            self.position[1] -= self.speed
+    def move_down(self):
+        self.position[1] += self.speed
+        print("bas")
 
     def get_img(self, x, y):
         image = pygame.Surface([16, 16])
