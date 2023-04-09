@@ -32,7 +32,8 @@ class Game:
     def __init__(self):
         # création fenetre
 
-        self.screen = pygame.display.set_mode((1920, 1080))
+
+        self.screen = pygame.display.set_mode((900, 600))
         pygame.display.set_caption("dungeon heros")
         self.map = "world"
         print("sa init")
@@ -48,14 +49,19 @@ class Game:
         #generer joueur
         player_position = tmx_data.get_object_by_name("player")
         self.player = Player(player_position.x, player_position.y)
+        #self.monstre = Monstre(0, 0)
+        #self.monstres = pygame.sprite.Group()
 
         #generer monstre
+        #for monstre_position in tmx_data.objects:
+        #    if monstre_position.name == "mob1":
+        #        self.monstre = Monstre(monstre_position.x, monstre_position.y)
+
+        self.liste_monstres = []
         for monstre_position in tmx_data.objects:
             if monstre_position.name == "mob1":
-                self.monstre = Monstre(monstre_position.x, monstre_position.y)
-
-
-
+                monstre = Monstre(monstre_position.x, monstre_position.y)
+                self.liste_monstres.append(monstre)
 
 
         #stocker collision
@@ -72,7 +78,9 @@ class Game:
         #dessiner le groupe calque
         self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=8)
         self.group.add(self.player)
-        self.group.add(self.monstre)
+
+        for monstre in self.liste_monstres:
+            self.group.add(monstre)
 
         # créer l'inventaire
         self.menu_inventaire = MenuInventaire(self.player)
@@ -101,11 +109,7 @@ class Game:
         elif pressed[pygame.K_i]:
 
             self.menu_inventaire.afficher(self.screen)
-            print("perso --- x : ", self.player.rect.x, "y : ", self.player.rect.y)
-            print("monstre --- x : ", self.monstre.rect.x, "y : ", self.monstre.rect.y)
-            distance_x = self.player.rect.x - self.monstre.rect.x
-            distance_y = self.player.rect.y - self.monstre.rect.y
-            print(distance_y, distance_y)
+
 
     def detecter_coffre_touche(self, sprite):
         for i, coffre in enumerate(self.coffre):
@@ -186,30 +190,30 @@ class Game:
         if self.map == "house" and self.player.feet.colliderect(self.enter_house_rect):
             self.switch_world()
 
-        if self.player.rect.colliderect(self.monstre.rect):
+        for monstre in self.liste_monstres:
             # collision détectée entre le joueur et le monstre
-            print("toucherrr")
+            #print("toucherrr")
 
-        distance = math.sqrt((self.player.rect.x - self.monstre.rect.x)**2 + (self.player.rect.y - self.monstre.rect.y)**2)
+            distance = math.sqrt((self.player.rect.x - monstre.rect.x)**2 + (self.player.rect.y - monstre.rect.y)**2)
 
-        # Si le joueur est à une distance de 10x/10y du monstre
-        if distance <= 80:
-            # Calculer la direction vers laquelle le monstre doit se déplacer
-            delta_x = self.player.rect.x - self.monstre.rect.x
-            delta_y = self.player.rect.y - self.monstre.rect.y
-            if abs(delta_x) > abs(delta_y):
-                if delta_x > 0:
-                    self.monstre.move_right()
+            # Si le joueur est à une distance de 10x/10y du monstre
+            if distance <= 80:
+                # Calculer la direction vers laquelle le monstre doit se déplacer
+                delta_x = self.player.rect.x - monstre.rect.x
+                delta_y = self.player.rect.y - monstre.rect.y
+                if abs(delta_x) > abs(delta_y):
+                    if delta_x > 0:
+                        monstre.move_right()
+                    else:
+                        monstre.move_left()
                 else:
-                    self.monstre.move_left()
+                    if delta_y > 0:
+                        monstre.move_down()
+                    else:
+                        monstre.move_up()
             else:
-                if delta_y > 0:
-                    self.monstre.move_down()
-                else:
-                    self.monstre.move_up()
-        else:
-            # Le joueur est trop éloigné, le monstre ne bouge pas
-            pass
+                # Le joueur est trop éloigné, le monstre ne bouge pas
+                pass
 
         #verif collision
         for sprite in self.group.sprites():
@@ -234,7 +238,8 @@ class Game:
         while running:
 
             self.player.save_loc()
-            self.monstre.save_loc()
+            for monstre in self.liste_monstres:
+                monstre.save_loc()
             self.handle_input()
             self.update()
             self.group.center(self.player.rect)
