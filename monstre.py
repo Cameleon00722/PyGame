@@ -2,13 +2,14 @@ import pygame
 import random
 import time
 
+
 class Monstre(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         super().__init__()
         self.sprite_sheet = pygame.image.load('slime.png')
-        self.image = self.get_img(0,0)
-        self.image.set_colorkey([0,0,0])
+        self.image = self.get_img(0, 0)
+        self.image.set_colorkey([0, 0, 0])
         self.rect = self.image.get_rect()
         self.position = [x, y]
         self.speed = 0.5
@@ -20,19 +21,19 @@ class Monstre(pygame.sprite.Sprite):
 
     def move_right(self):
         self.position[0] += self.speed
-        print("droite")
+        # print("droite")
 
     def move_left(self):
         self.position[0] -= self.speed
-        print("gauche")
+        # print("gauche")
 
     def move_up(self):
         self.position[1] -= self.speed
-        print("haut")
+        # print("haut")
 
     def move_down(self):
         self.position[1] += self.speed
-        print("bas")
+        # print("bas")
 
     def get_img(self, x, y):
         image = pygame.Surface([16, 16])

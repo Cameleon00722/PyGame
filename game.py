@@ -7,6 +7,7 @@ import pyscroll
 from monstre import Monstre
 from player import Player
 
+
 class MenuInventaire:
     def __init__(self, joueur):
         self.joueur = joueur
@@ -18,7 +19,6 @@ class MenuInventaire:
         self.rect.x = 10
         self.rect.y = 10
 
-
     def afficher(self, ecran):
         ecran.blit(self.surface, self.rect)
         y = 10
@@ -27,35 +27,26 @@ class MenuInventaire:
             ecran.blit(texte, (self.rect.x + 10, self.rect.y + y))
             y += 30
 
+
 class Game:
 
     def __init__(self):
         # création fenetre
-
 
         self.screen = pygame.display.set_mode((900, 600))
         pygame.display.set_caption("dungeon heros")
         self.map = "world"
         print("sa init")
 
-        #charger la carte
+        # charger la carte
         tmx_data = pytmx.util_pygame.load_pygame("carte.tmx")
         map_data = pyscroll.data.TiledMapData(tmx_data)
         map_layer = pyscroll.orthographic.BufferedRenderer(map_data, self.screen.get_size())
         map_layer.zoom = 3
 
-
-
-        #generer joueur
+        # generer joueur
         player_position = tmx_data.get_object_by_name("player")
         self.player = Player(player_position.x, player_position.y)
-        #self.monstre = Monstre(0, 0)
-        #self.monstres = pygame.sprite.Group()
-
-        #generer monstre
-        #for monstre_position in tmx_data.objects:
-        #    if monstre_position.name == "mob1":
-        #        self.monstre = Monstre(monstre_position.x, monstre_position.y)
 
         self.liste_monstres = []
         for monstre_position in tmx_data.objects:
@@ -63,19 +54,17 @@ class Game:
                 monstre = Monstre(monstre_position.x, monstre_position.y)
                 self.liste_monstres.append(monstre)
 
-
-        #stocker collision
+        # stocker collision
         self.walls = []
         for obj in tmx_data.objects:
             if obj.name == "collision":
                 self.walls.append(pygame.Rect(obj.x, obj.y, obj.width, obj.height))
 
         # stocker coffre
-        self.coffre = [{"rect": pygame.Rect(obj.x, obj.y, obj.width, obj.height), "touche": False} for obj in tmx_data.objects if obj.name == "coffre"]
+        self.coffre = [{"rect": pygame.Rect(obj.x, obj.y, obj.width, obj.height), "touche": False} for obj in
+                       tmx_data.objects if obj.name == "coffre"]
 
-
-
-        #dessiner le groupe calque
+        # dessiner le groupe calque
         self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=8)
         self.group.add(self.player)
 
@@ -85,13 +74,12 @@ class Game:
         # créer l'inventaire
         self.menu_inventaire = MenuInventaire(self.player)
 
-        #definir rect de collision d'entrée dans la maison
+        # definir rect de collision d'entrée dans la maison
         enter_house = tmx_data.get_object_by_name('enter_house_red')
         self.enter_house_rect = pygame.Rect(enter_house.x, enter_house.y, enter_house.width, enter_house.height)
 
-
     def handle_input(self):
-        #menu_inventaire = MenuInventaire(self.player)
+        # menu_inventaire = MenuInventaire(self.player)
         pressed = pygame.key.get_pressed()
 
         if pressed[pygame.K_z]:
@@ -110,7 +98,6 @@ class Game:
 
             self.menu_inventaire.afficher(self.screen)
 
-
     def detecter_coffre_touche(self, sprite):
         for i, coffre in enumerate(self.coffre):
             if not coffre["touche"] and sprite.feet.colliderect(coffre["rect"]):
@@ -126,7 +113,6 @@ class Game:
         map_data = pyscroll.data.TiledMapData(tmx_data)
         map_layer = pyscroll.orthographic.BufferedRenderer(map_data, self.screen.get_size())
         map_layer.zoom = 4
-
 
         # stocker collision
         self.walls = []
@@ -150,7 +136,6 @@ class Game:
         spawn_house_point = tmx_data.get_object_by_name("Spawn_house_red1")
         self.player.position[0] = spawn_house_point.x
         self.player.position[1] = spawn_house_point.y - 20
-
 
     def switch_world(self):
         self.map = "world"
@@ -183,6 +168,7 @@ class Game:
 
     def update(self):
         self.group.update()
+        self.player.check_invincibility()
 
         if self.player.feet.colliderect(self.enter_house_rect):
             self.switch_house()
@@ -191,10 +177,13 @@ class Game:
             self.switch_world()
 
         for monstre in self.liste_monstres:
-            # collision détectée entre le joueur et le monstre
-            #print("toucherrr")
 
-            distance = math.sqrt((self.player.rect.x - monstre.rect.x)**2 + (self.player.rect.y - monstre.rect.y)**2)
+            if self.player.rect.colliderect(monstre.rect):
+                # collision détectée entre le joueur et le monstre
+                self.player.take_damage()
+
+            distance = math.sqrt(
+                (self.player.rect.x - monstre.rect.x) ** 2 + (self.player.rect.y - monstre.rect.y) ** 2)
 
             # Si le joueur est à une distance de 10x/10y du monstre
             if distance <= 80:
@@ -215,7 +204,7 @@ class Game:
                 # Le joueur est trop éloigné, le monstre ne bouge pas
                 pass
 
-        #verif collision
+        # verif collision
         for sprite in self.group.sprites():
             if sprite.feet.collidelist(self.walls) > -1:
                 sprite.move_back()
@@ -226,7 +215,6 @@ class Game:
                 if indice_coffre_touche == 0:
                     self.player.ajouter_objet("épée")
                     print(self.player.inventaire)
-
 
     def run(self):
 
@@ -244,7 +232,6 @@ class Game:
             self.update()
             self.group.center(self.player.rect)
             self.group.draw(self.screen)
-
 
             pygame.display.flip()
 
