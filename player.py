@@ -20,17 +20,23 @@ class Player(pygame.sprite.Sprite):
 
     def take_damage(self):
         if not self.is_invincible:
+
             self.is_invincible = True
             self.last_hit_time = pygame.time.get_ticks()
             print("hiit", self.last_hit_time)
 
+            self.vie -= 1
+
+            if self.vie <= 0:
+                print("dead")
+
     def check_invincibility(self):
         if self.is_invincible:
             now = pygame.time.get_ticks()
-            print("invincible", now)
+            #print("invincible", now)
             if now - self.last_hit_time > 3000:
                 self.is_invincible = False
-                print("plus invincible", self.is_invincible)
+                print("plus invincible")
 
     def save_loc(self):
         self.old_position = self.position.copy()
