@@ -37,11 +37,10 @@ class Game:
         pygame.display.set_caption("dungeon heros")
         self.map = "world"
 
-        #gestion bande son
+        # gestion bande son
         pygame.mixer.init()
         pygame.mixer.music.load("normal.mp3")
-        pygame.mixer.music.play(-1)
-
+        #pygame.mixer.music.play(-1)
 
         # charger la carte
         tmx_data = pytmx.util_pygame.load_pygame("carte.tmx")
@@ -52,6 +51,8 @@ class Game:
         # generer joueur
         player_position = tmx_data.get_object_by_name("player")
         self.player = Player(player_position.x, player_position.y)
+
+        self.zone_degats_layer = pyscroll.BufferedRenderer(map_data, self.screen.get_size())
 
         self.liste_monstres = []
         for monstre_position in tmx_data.objects:
@@ -70,8 +71,9 @@ class Game:
                        tmx_data.objects if obj.name == "coffre"]
 
         # dessiner le groupe calque
-        self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=8)
+        self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=7)
         self.group.add(self.player)
+        #self.group.add(self.zone_degats_layer)
 
         for monstre in self.liste_monstres:
             self.group.add(monstre)
@@ -84,8 +86,6 @@ class Game:
         self.enter_house_rect = pygame.Rect(enter_house.x, enter_house.y, enter_house.width, enter_house.height)
 
     def handle_input(self):
-        zone_degats = pygame.Rect(self.player.rect.x + self.player.rect.width, self.player.rect.y, 100,
-                                  self.player.rect.height)
 
         pressed = pygame.key.get_pressed()
 
@@ -105,19 +105,22 @@ class Game:
             self.menu_inventaire.afficher(self.screen)
 
         elif pressed[pygame.K_f]:
-            zone_degats = pygame.Rect(self.player.rect.x + self.player.rect.width, self.player.rect.y, 100, self.player.rect.height)
+
+            zone_degats = pygame.Rect(self.player.rect.x + self.player.rect.width, self.player.rect.y, 100,
+                                      self.player.rect.height)
+
+            #self.zone_degats_layer.surface.fill((0, 0, 0, 0))  # Effacer le calque
+            #pygame.draw.rect(self.zone_degats_layer.surface, (255, 0, 0), zone_degats)
+
+            print("attack")
             for monstre in self.liste_monstres:
                 if monstre.rect.colliderect(zone_degats):
-                    monstre.subir_degats()
+                    monstre.subir_degats()  #TODO sa mitraille les dégat, add un cooldown d'attaque
                     if monstre.vie <= 0:
-                        print("c'est un kill")
+                        # print("c'est un kill")
                         monstre.kill()
                         monstre.remove()
                         monstre.status = "dead"
-
-
-
-
 
     def detecter_coffre_touche(self, sprite):
         for i, coffre in enumerate(self.coffre):
@@ -126,12 +129,13 @@ class Game:
                 return i
         return None
 
-    def sound (self, name):
+    @staticmethod
+    def sound(name):
         if name == "normal":
             pygame.mixer.music.load("normal.mp3")
             pygame.mixer.music.play(-1)
         elif name == "fight":
-            #pygame.mixer.music.stop()
+            # pygame.mixer.music.stop()
             pygame.mixer.music.load("Fight.mp3")
             pygame.mixer.music.play(-1)
         elif name == "boss":
@@ -159,7 +163,7 @@ class Game:
                        tmx_data.objects if obj.name == "coffre"]
 
         # dessiner le groupe calque
-        self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=8)
+        self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=7)
         self.group.add(self.player)
 
         # Porte de la maison
@@ -188,7 +192,7 @@ class Game:
                 self.walls.append(pygame.Rect(obj.x, obj.y, obj.width, obj.height))
 
         # Dessiner les différents calques
-        self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=8)
+        self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=1)
         self.group.add(self.player)
 
         # Porte de la maison
@@ -226,7 +230,6 @@ class Game:
             # Si le joueur est à une distance de 10x/10y du monstre
             if distance <= 80 and monstre.status != "dead":
 
-
                 # Calculer la direction vers laquelle le monstre doit se déplacer
                 delta_x = self.player.rect.x - monstre.rect.x
                 delta_y = self.player.rect.y - monstre.rect.y
@@ -242,7 +245,6 @@ class Game:
                         monstre.move_up()
             else:
                 pass
-
 
         # verif collision
         for sprite in self.group.sprites():
@@ -262,7 +264,7 @@ class Game:
         # boucle du jeu
 
         running = True
-        #self.sound("normal")
+        # self.sound("normal")
 
         while running:
 
