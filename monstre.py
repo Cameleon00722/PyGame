@@ -15,6 +15,8 @@ class Monstre(pygame.sprite.Sprite):
         self.speed = 0.5
         self.feet = pygame.Rect(0, 0, self.rect.width * 0.5, 10)
         self.old_position = self.position.copy()
+        self.vie = 2
+        self.status = ""
 
     def save_loc(self):
         self.old_position = self.position.copy()
@@ -48,3 +50,9 @@ class Monstre(pygame.sprite.Sprite):
         self.position = self.old_position
         self.rect.topleft = self.position
         self.feet.midbottom = self.rect.midbottom
+
+    def subir_degats(self):
+        self.vie -= 1
+
+
+

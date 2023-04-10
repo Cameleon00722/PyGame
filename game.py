@@ -36,7 +36,12 @@ class Game:
         self.screen = pygame.display.set_mode((900, 600))
         pygame.display.set_caption("dungeon heros")
         self.map = "world"
-        print("sa init")
+
+        #gestion bande son
+        pygame.mixer.init()
+        pygame.mixer.music.load("normal.mp3")
+        pygame.mixer.music.play(-1)
+
 
         # charger la carte
         tmx_data = pytmx.util_pygame.load_pygame("carte.tmx")
@@ -79,7 +84,9 @@ class Game:
         self.enter_house_rect = pygame.Rect(enter_house.x, enter_house.y, enter_house.width, enter_house.height)
 
     def handle_input(self):
-        # menu_inventaire = MenuInventaire(self.player)
+        zone_degats = pygame.Rect(self.player.rect.x + self.player.rect.width, self.player.rect.y, 100,
+                                  self.player.rect.height)
+
         pressed = pygame.key.get_pressed()
 
         if pressed[pygame.K_z]:
@@ -95,8 +102,22 @@ class Game:
             self.player.move_left()
 
         elif pressed[pygame.K_i]:
-
             self.menu_inventaire.afficher(self.screen)
+
+        elif pressed[pygame.K_f]:
+            zone_degats = pygame.Rect(self.player.rect.x + self.player.rect.width, self.player.rect.y, 100, self.player.rect.height)
+            for monstre in self.liste_monstres:
+                if monstre.rect.colliderect(zone_degats):
+                    monstre.subir_degats()
+                    if monstre.vie <= 0:
+                        print("c'est un kill")
+                        monstre.kill()
+                        monstre.remove()
+                        monstre.status = "dead"
+
+
+
+
 
     def detecter_coffre_touche(self, sprite):
         for i, coffre in enumerate(self.coffre):
@@ -104,6 +125,19 @@ class Game:
                 coffre["touche"] = True
                 return i
         return None
+
+    def sound (self, name):
+        if name == "normal":
+            pygame.mixer.music.load("normal.mp3")
+            pygame.mixer.music.play(-1)
+        elif name == "fight":
+            #pygame.mixer.music.stop()
+            pygame.mixer.music.load("Fight.mp3")
+            pygame.mixer.music.play(-1)
+        elif name == "boss":
+            pygame.mixer.music.stop()
+            pygame.mixer.music.load("DragonBorn.mp3")
+            pygame.mixer.music.play(-1)
 
     def switch_house(self):
         self.map = "house"
@@ -167,6 +201,7 @@ class Game:
         self.player.position[1] = spawn_house_point.y + 20
 
     def update(self):
+
         self.group.update()
         self.player.check_invincibility()
 
@@ -176,9 +211,12 @@ class Game:
         if self.map == "house" and self.player.feet.colliderect(self.enter_house_rect):
             self.switch_world()
 
+        if self.player.status == "dead":
+            self.player.dead()
+
         for monstre in self.liste_monstres:
 
-            if self.player.rect.colliderect(monstre.rect):
+            if self.player.rect.colliderect(monstre.rect) and monstre.status != "dead":
                 # collision détectée entre le joueur et le monstre
                 self.player.take_damage()
 
@@ -186,7 +224,9 @@ class Game:
                 (self.player.rect.x - monstre.rect.x) ** 2 + (self.player.rect.y - monstre.rect.y) ** 2)
 
             # Si le joueur est à une distance de 10x/10y du monstre
-            if distance <= 80:
+            if distance <= 80 and monstre.status != "dead":
+
+
                 # Calculer la direction vers laquelle le monstre doit se déplacer
                 delta_x = self.player.rect.x - monstre.rect.x
                 delta_y = self.player.rect.y - monstre.rect.y
@@ -201,8 +241,8 @@ class Game:
                     else:
                         monstre.move_up()
             else:
-                # Le joueur est trop éloigné, le monstre ne bouge pas
                 pass
+
 
         # verif collision
         for sprite in self.group.sprites():
@@ -222,6 +262,7 @@ class Game:
         # boucle du jeu
 
         running = True
+        #self.sound("normal")
 
         while running:
 
