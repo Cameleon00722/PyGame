@@ -1,6 +1,4 @@
 import pygame
-import random
-import time
 
 
 class Monstre(pygame.sprite.Sprite):
@@ -17,6 +15,8 @@ class Monstre(pygame.sprite.Sprite):
         self.old_position = self.position.copy()
         self.vie = 2
         self.status = ""
+        self.is_invincible = False
+        self.last_hit_time = 0
 
     def save_loc(self):
         self.old_position = self.position.copy()
@@ -52,7 +52,18 @@ class Monstre(pygame.sprite.Sprite):
         self.feet.midbottom = self.rect.midbottom
 
     def subir_degats(self):
-        self.vie -= 1
+        if not self.is_invincible:
 
+            self.is_invincible = True
+            self.last_hit_time = pygame.time.get_ticks()
 
+            self.vie -= 1
 
+            if self.vie <= 0:
+                self.status = "dead"
+
+    def check_invincibility(self):
+        if self.is_invincible:
+            now = pygame.time.get_ticks()
+            if now - self.last_hit_time > 3000:
+                self.is_invincible = False

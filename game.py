@@ -40,7 +40,7 @@ class Game:
         # gestion bande son
         pygame.mixer.init()
         pygame.mixer.music.load("normal.mp3")
-        #pygame.mixer.music.play(-1)
+        # pygame.mixer.music.play(-1)
 
         # charger la carte
         tmx_data = pytmx.util_pygame.load_pygame("carte.tmx")
@@ -73,7 +73,7 @@ class Game:
         # dessiner le groupe calque
         self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=7)
         self.group.add(self.player)
-        #self.group.add(self.zone_degats_layer)
+        # self.group.add(self.zone_degats_layer)
 
         for monstre in self.liste_monstres:
             self.group.add(monstre)
@@ -109,13 +109,13 @@ class Game:
             zone_degats = pygame.Rect(self.player.rect.x + self.player.rect.width, self.player.rect.y, 100,
                                       self.player.rect.height)
 
-            #self.zone_degats_layer.surface.fill((0, 0, 0, 0))  # Effacer le calque
-            #pygame.draw.rect(self.zone_degats_layer.surface, (255, 0, 0), zone_degats)
+            # self.zone_degats_layer.surface.fill((0, 0, 0, 0))  # Effacer le calque
+            # pygame.draw.rect(self.zone_degats_layer.surface, (255, 0, 0), zone_degats)
 
-            print("attack")
+            # print("attack")
             for monstre in self.liste_monstres:
                 if monstre.rect.colliderect(zone_degats):
-                    monstre.subir_degats()  #TODO sa mitraille les dégat, add un cooldown d'attaque
+                    monstre.subir_degats()
                     if monstre.vie <= 0:
                         # print("c'est un kill")
                         monstre.kill()
